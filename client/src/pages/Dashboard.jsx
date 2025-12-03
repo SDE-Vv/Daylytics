@@ -383,6 +383,27 @@ const Dashboard = () => {
       >
         <p className="mb-0">You'll be redirected to the login screen.</p>
       </Modal>
+
+      {/* Version Display */}
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        fontSize: '11px',
+        opacity: 0.7,
+        padding: '6px 12px',
+        borderRadius: '20px',
+        backgroundColor: 'var(--bs-body-bg)',
+        border: '1px solid var(--bs-border-color)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        fontWeight: '500',
+        color: 'var(--bs-body-color)',
+        zIndex: 1000,
+        userSelect: 'none',
+        pointerEvents: 'none'
+      }}>
+        v1.0.1
+      </div>
     </>
   );
 };
