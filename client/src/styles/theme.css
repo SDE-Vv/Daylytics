@@ -54,6 +54,13 @@ body::-webkit-scrollbar {
   padding-right: 1.5rem;
 }
 
+@media (max-width: 576px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
 .panel,
 .card,
 .list-group-item {
@@ -268,6 +275,15 @@ small {
   position: sticky;
   top: 1rem;
   z-index: 5;
+}
+
+@media (max-width: 576px) {
+  .app-navbar {
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 0.75rem;
+    top: 0.5rem;
+    border-radius: 12px;
+  }
 }
 
 .app-navbar .brand {
@@ -658,10 +674,13 @@ small {
 
 @media (max-width: 576px) {
   .panel {
-    padding: 1.1rem;
+    padding: 0.85rem;
   }
   .dashboard-hero {
-    padding: 1.25rem;
+    padding: 1rem;
+  }
+  .list-group-item {
+    padding: 0.75rem;
   }
 }
 
