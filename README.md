@@ -2,7 +2,7 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.3.1` (Stable)
+**Current Version:** `1.3.1` (Beta)
 
 ---
 
