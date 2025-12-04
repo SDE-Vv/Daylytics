@@ -27,8 +27,8 @@ router.post('/rollover', auth, async (req, res) => {
     const archive = new DailyArchive({ user: req.user._id, date, total, completed, percentage });
     await archive.save();
 
-    // Remove tasks of that day
-    await Task.deleteMany({ user: req.user._id, date });
+    // Don't remove tasks - keep them in the Task collection
+    // await Task.deleteMany({ user: req.user._id, date });
 
     res.json({ archive });
   } catch (err) {

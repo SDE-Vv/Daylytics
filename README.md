@@ -2,23 +2,24 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.1.1` (Stable)
+**Current Version:** `1.2.1` (Stable)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.1.1 (Current — Stable)
+### Version 1.2.1 (Current — Stable)
 - **Release Date:** December 4, 2025
 - **Highlights:**
-   - Fixed login redirection so users are now automatically redirected to the dashboard after successful sign-in.
-   - Dark / Light theme is now dynamic, fetched from the server for logged-in users and persisted across devices (supports `system`, `light`, `dark`).
-   - Improved UX for task updates and deletions — per-task loading indicators prevent duplicate actions and provide clearer feedback.
-   - Fixed layout and responsiveness issues on very small screens so controls remain accessible and usable.
-   - Added a GitHub contribution button on the dashboard for quick access to the project repo.
-   - Fixed visual task border issue that caused inconsistent item styling.
+   - **Task Editing** - Edit task titles directly with inline editing mode
+   - **Delete All Tasks** - Remove all tasks for a specific date with confirmation
+   - **Task View Modal** - Click on any task to view full details in a popup
+   - **Text Truncation** - Long task titles now show ellipsis (...) with overflow handling
+   - **Task Validation** - Maximum 500 characters and 50 words per task
+   - **Improved Archive System** - Tasks are no longer deleted after archiving, preserved in database
+   - **Checkbox-only Toggle** - Task completion only toggles when clicking the checkbox
 - **User Authentication** - Secure registration and login with JWT tokens
-- **Daily Task Management** - Create, toggle, and delete tasks for specific dates
+- **Daily Task Management** - Create, toggle, edit, and delete tasks for specific dates
 - **Task Analytics** - Archive past tasks and view completion statistics
 - **Profile Management** - Update name, email, and password directly from dashboard
 - **Dark/Light Mode** - GitHub-inspired theme with seamless switching
@@ -190,8 +191,10 @@ This creates a test user:
 ### Tasks
 - `GET /api/tasks?date=YYYY-MM-DD` - Get tasks for date
 - `POST /api/tasks` - Create new task
+- `PUT /api/tasks/:id` - Edit task title
 - `PATCH /api/tasks/:id` - Toggle task completion
 - `DELETE /api/tasks/:id` - Delete task
+- `DELETE /api/tasks?date=YYYY-MM-DD` - Delete all tasks for date
 
 ### Archive
 - `POST /api/archive/rollover?date=YYYY-MM-DD` - Archive tasks for date
@@ -201,7 +204,30 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.1.1 (Current — Stable)
+### v1.2.1 (Current — Stable)
+**Release Date:** December 4, 2025
+
+**New Features:**
+- ✅ **Task Editing** - Edit task titles with inline editing mode (Save/Cancel icons with hover animations)
+- ✅ **Delete All Tasks** - Bulk delete all tasks for a specific date with confirmation modal
+- ✅ **Task View Modal** - Click on task content to view full details in popup
+- ✅ **Task Validation** - Maximum 500 characters and 50 words per task title
+- ✅ **Text Truncation** - Long task titles display with ellipsis (...) and proper overflow handling
+
+**Improvements:**
+- ✅ **Improved Archive System** - Tasks no longer deleted after archiving, preserved in database for history
+- ✅ **Checkbox-only Toggle** - Task completion only triggers when clicking checkbox (not entire row)
+- ✅ **Enhanced Button Styles** - Edit, save, cancel buttons use same hover animation pattern as delete
+- ✅ **Better Mobile Spacing** - Reduced padding and margins on mobile to prevent component overlap
+
+**API Updates:**
+- `PUT /api/tasks/:id` - New endpoint for editing task titles
+- `DELETE /api/tasks?date=YYYY-MM-DD` - New endpoint for bulk deletion
+- Enhanced validation on task creation and editing
+
+---
+
+### v1.1.1 (Stable)
 **Release Date:** December 4, 2025
 
 **Fixes & Improvements:**

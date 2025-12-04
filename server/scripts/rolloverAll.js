@@ -30,7 +30,8 @@ const run = async () => {
 
     const archive = new DailyArchive({ user: u._id, date, total, completed, percentage });
     await archive.save();
-    await Task.deleteMany({ user: u._id, date });
+    // Don't remove tasks - keep them in the Task collection
+    // await Task.deleteMany({ user: u._id, date });
   }
 
   process.exit(0);

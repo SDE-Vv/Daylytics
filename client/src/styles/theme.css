@@ -224,6 +224,20 @@ small {
 .task-item-time {
   font-size: 0.8rem;
   color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.task-title-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.list-group-item > div:first-child {
+  min-width: 0;
 }
 
 .divider {
@@ -255,9 +269,55 @@ small {
   font-size: 1rem;
   padding: 0.15rem 0.4rem;
   border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .task-delete-btn:hover {
+  background: rgba(207, 34, 46, 0.08);
+  color: var(--danger);
+}
+
+.task-edit-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.task-edit-btn:hover {
+  background: rgba(9, 105, 218, 0.08);
+  color: var(--primary);
+}
+
+.task-edit-save-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.task-edit-save-btn:hover {
+  background: rgba(26, 127, 55, 0.08);
+  color: var(--success);
+}
+
+.task-edit-cancel-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.task-edit-cancel-btn:hover {
   background: rgba(207, 34, 46, 0.08);
   color: var(--danger);
 }

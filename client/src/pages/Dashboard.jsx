@@ -23,6 +23,10 @@ const Dashboard = () => {
   const [deletingTasks, setDeletingTasks] = useState(() => new Set());
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [viewingTask, setViewingTask] = useState(null);
   const [activeTab, setActiveTab] = useState("tasks");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logout, user, refreshUser } = useAuth();
@@ -134,6 +138,46 @@ const Dashboard = () => {
     }
   };
 
+  const deleteAllTasks = async () => {
+    try {
+      setLoadingData(true);
+      setShowDeleteAllModal(false);
+      const { data } = await API.delete(`/api/tasks?date=${date}`);
+      setTasks([]);
+      addToast("success", `Deleted ${data.count} tasks`);
+    } catch (err) {
+      addToast("error", "Unable to delete all tasks");
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const startEdit = (task) => {
+    setEditingTask(task);
+    setEditTitle(task.title);
+  };
+
+  const cancelEdit = () => {
+    setEditingTask(null);
+    setEditTitle("");
+  };
+
+  const saveEdit = async () => {
+    if (!editTitle.trim()) {
+      addToast("error", "Task title cannot be empty");
+      return;
+    }
+
+    try {
+      const { data } = await API.put(`/api/tasks/${editingTask._id}`, { title: editTitle });
+      setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? data : t)));
+      addToast("success", "Task updated");
+      cancelEdit();
+    } catch (err) {
+      addToast("error", err.response?.data?.msg || "Unable to update task");
+    }
+  };
+
   const rolloverYesterday = async () => {
     try {
       setLoadingData(true);
@@ -221,6 +265,7 @@ const Dashboard = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Add a task for today"
+              maxLength={500}
             />
             <button
               type="submit"
@@ -278,24 +323,37 @@ const Dashboard = () => {
                 <h5 className="mb-0">Tasks</h5>
                 <small>Track what needs attention before midnight.</small>
               </div>
-              <form
-                onSubmit={addTask}
-                className="task-form d-none d-md-flex flex-wrap gap-2 align-items-center"
-              >
-                <input
-                  className="form-control flex-fill"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Add a task for today"
-                />
-                <button
-                  type="submit"
-                  className="btn btn-primary flex-shrink-0"
-                  disabled={submittingTask}
+              <div className="d-flex gap-2 align-items-center">
+                
+                <form
+                  onSubmit={addTask}
+                  className="task-form d-none d-md-flex flex-wrap gap-2 align-items-center"
                 >
-                  {submittingTask ? "Adding..." : "Add"}
-                </button>
-              </form>
+                  <input
+                    className="form-control flex-fill"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Add a task for today"
+                    maxLength={500}
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-primary flex-shrink-0"
+                    disabled={submittingTask}
+                  >
+                    {submittingTask ? "Adding..." : "Add"}
+                  </button>
+                  {tasks.length > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger d-flex  gap-1 align-items-center"
+                    onClick={() => setShowDeleteAllModal(true)}
+                  >
+                    <i class="ri-delete-bin-line"></i> All
+                  </button>
+                )}
+                </form>
+              </div>
             </div>
 
             <div className="list-group">
@@ -310,45 +368,97 @@ const Dashboard = () => {
                   className={`list-group-item d-flex justify-content-between align-items-center ${
                     t.done ? "list-group-item-success" : ""
                   }`}
-                  onClick={() => !updatingTasks.has(t._id) && toggle(t._id)}
-                  role="button"
                 >
-                  <div className="d-flex align-items-center gap-3">
-                    {updatingTasks.has(t._id) ? (
-                      <div className="spinner-border spinner-border-sm text-primary" role="status" />
-                    ) : (
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={t.done}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() => toggle(t._id)}
-                      />
-                    )}
-                    <span className={t.done ? "text-decoration-line-through" : ""}>
-                      {t.title}
-                    </span>
-                  </div>
-                  <div className="d-flex align-items-center gap-3">
-                    <span className="task-item-time">
-                      {formatTimestamp(t.createdAt)}
-                    </span>
-                    <button
-                      className="task-delete-btn"
-                      type="button"
-                      disabled={deletingTasks.has(t._id)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeTask(t._id);
-                      }}
-                    >
-                      {deletingTasks.has(t._id) ? (
-                        <div className="spinner-border spinner-border-sm text-danger" role="status" />
-                      ) : (
-                        "✕"
-                      )}
-                    </button>
-                  </div>
+                  {editingTask?._id === t._id ? (
+                    <>
+                      <div className="d-flex align-items-center gap-2 me-1 flex-grow-1">
+                        <input
+                          className="form-control"
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          maxLength={500}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="task-edit-save-btn"
+                          onClick={saveEdit}
+                          title="Save"
+                        >
+                          <i className="ri-check-line"></i>
+                        </button>
+                        <button
+                          className="task-edit-cancel-btn"
+                          onClick={cancelEdit}
+                          title="Cancel"
+                        >
+                          <i className="ri-close-line"></i>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div
+                        className="d-flex align-items-center gap-3 flex-grow-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingTask(t);
+                        }}
+                        role="button"
+                      >
+                        {updatingTasks.has(t._id) ? (
+                          <div className="spinner-border spinner-border-sm text-primary" role="status" />
+                        ) : (
+                          <input
+                            className="form-check-input"
+                            type="checkbox"
+                            checked={t.done}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              toggle(t._id);
+                            }}
+                          />
+                        )}
+                        <span className={cx("task-title-truncate", t.done && "text-decoration-line-through")}>
+                          {t.title}
+                        </span>
+                      </div>
+                      <div className="d-flex align-items-center ms-1 gap-1">
+                        <span className="task-item-time">
+                          {formatTimestamp(t.createdAt)}
+                        </span>
+                        <button
+                          className="task-edit-btn"
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEdit(t);
+                          }}
+                        >
+                          <i className="ri-edit-line"></i>
+                        </button>
+                        <button
+                          className="task-delete-btn"
+                          type="button"
+                          disabled={deletingTasks.has(t._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeTask(t._id);
+                          }}
+                        >
+                          {deletingTasks.has(t._id) ? (
+                            <div className="spinner-border spinner-border-sm text-danger" role="status" />
+                          ) : (
+                            <i className="ri-delete-bin-line"></i>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
@@ -425,10 +535,85 @@ const Dashboard = () => {
         <p className="mb-0">You'll be redirected to the login screen.</p>
       </Modal>
 
+      <Modal
+        open={showDeleteAllModal}
+        onClose={() => setShowDeleteAllModal(false)}
+        title="Delete all tasks?"
+        footer={
+          <div className="d-flex gap-2 justify-content-end w-100">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => setShowDeleteAllModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-danger"
+              type="button"
+              onClick={deleteAllTasks}
+            >
+              Delete All
+            </button>
+          </div>
+        }
+      >
+        <p className="mb-0">This will permanently delete all {tasks.length} task(s) for {date}. This action cannot be undone.</p>
+      </Modal>
+
+      <Modal
+        open={!!viewingTask}
+        onClose={() => setViewingTask(null)}
+        title="Task Details"
+        footer={
+          <div className="d-flex gap-2 justify-content-end w-100">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => setViewingTask(null)}
+            >
+              Close
+            </button>
+          </div>
+        }
+      >
+        {viewingTask && (
+          <div>
+            <div className="mb-3">
+              <label className="form-label text-muted small">Status</label>
+              <div className="d-flex align-items-center gap-2">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={viewingTask.done}
+                  onChange={() => {
+                    toggle(viewingTask._id);
+                    setViewingTask({...viewingTask, done: !viewingTask.done});
+                  }}
+                />
+                <span className={viewingTask.done ? "text-success" : "text-muted"}>
+                  {viewingTask.done ? "Completed" : "Pending"}
+                </span>
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label text-muted small">Task</label>
+              <p className="mb-0" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                {viewingTask.title}
+              </p>
+            </div>
+            <div className="mb-0">
+              <label className="form-label text-muted small">Created</label>
+              <p className="mb-0">{formatTimestamp(viewingTask.createdAt)}</p>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Version Display */}
       <div style={{
         position: 'fixed',
-        top: '10px',
+        bottom: '10px',
         right: '20px',
         fontSize: '11px',
         opacity: 0.7,
@@ -443,12 +628,12 @@ const Dashboard = () => {
         userSelect: 'none',
         pointerEvents: 'none'
       }}>
-        v1.1.1
+        v1.2.1
       </div>
 
        <div style={{
         position: 'fixed',
-        top: '10px',
+        bottom: '10px',
         right: '80px',
         fontSize: '11px',
         opacity: 0.7,

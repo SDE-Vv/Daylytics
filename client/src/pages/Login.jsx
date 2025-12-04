@@ -46,7 +46,7 @@ const Login = () => {
           <p className="auth-brand-tagline">
             Track your daily tasks and completion insights in one place
           </p>
-          <div className="auth-version">v1.1.1</div>
+          <div className="auth-version">v1.2.1</div>
           <div className="auth-features">
             <div className="auth-feature">
               <i className="ri-checkbox-circle-line"></i>
