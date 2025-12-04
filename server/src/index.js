@@ -7,6 +7,7 @@ const axios = require('axios');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const archiveRoutes = require('./routes/archive');
+const fileRoutes = require('./routes/files');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -54,6 +55,7 @@ setInterval(reloadWebsite, interval);
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/archive', archiveRoutes);
+app.use('/api/files', fileRoutes);
 
 // Simple health route
 app.get('/api/health', (req, res) => res.json({ status: 'ok', now: new Date().toISOString() }));

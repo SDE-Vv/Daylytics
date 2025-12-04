@@ -4,6 +4,7 @@ import { useTheme } from "../context/ThemeContext";
 const navItems = [
   { id: "tasks", label: "Tasks", icon: "ri-list-check-2" },
   { id: "analytics", label: "Analytics", icon: "ri-line-chart-line" },
+  { id: "files", label: "Files", icon: "ri-file-text-line" },
 ];
 
 const Navbar = ({
@@ -41,7 +42,7 @@ const Navbar = ({
       <header className="app-navbar panel-shadow">
         <div className="brand">Daylytics</div>
         <div className="nav-icons-mobile d-flex d-md-none">
-          {navItems.map((item) => (
+          {navItems.filter(item => item.id !== 'files').map((item) => (
             <button
               type="button"
               key={item.id}
@@ -131,6 +132,15 @@ const Navbar = ({
               </button>
             </div>
             <div className="d-flex flex-column gap-2 mt-2">
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={() => {
+                  handleTab('files');
+                }}
+              >
+                <i className="ri-file-text-line me-2"></i>Files
+              </button>
               <button
                 type="button"
                 className="btn btn-outline-primary"

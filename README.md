@@ -2,13 +2,35 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.2.1` (Stable)
+**Current Version:** `1.3.1` (Stable)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.2.1 (Current — Stable)
+### Version 1.3.1 (Current — Beta)
+- **Release Date:** December 2025
+- **Highlights:**
+   - **📁 File Management System** - Create, edit, view, and delete unlimited files/notes
+   - **📝 Rich Text Editor** - Full markdown toolbar with 14 formatting options
+     - Headings (H1, H2, H3)
+     - Bold (`**text**`) and Italic (`_text_`)
+     - Inline Code (`` `code` ``) and Code Blocks (` ```code``` `)
+     - Bullet Lists and Numbered Lists
+     - Links, Blockquotes, Tables, and Horizontal Rules
+   - **📌 Pin Files** - Pin important files to keep them at the top with instant reordering
+   - **🔍 File Preview** - Click any file to view full rendered markdown content
+   - **✏️ Inline Editing** - Edit files with same rich text toolbar in fullscreen edit mode
+   - **🗂️ Files Tab** - Dedicated tab alongside Tasks and Analytics with localStorage persistence
+   - **📊 File Cards** - Visual grid layout showing title, markdown preview (stripped formatting), and last updated timestamp
+   - **🎨 Consistent UI** - File management follows same dark/light theme and modal patterns as Tasks
+   - **⚡ Per-File Loading States** - Individual pin button loaders without full page refresh
+   - **🗑️ Delete Confirmation** - Confirmation modal before deleting files
+   - **📱 Fullscreen Modals** - Create, edit, and view modals cover entire viewport with scrollable content
+   - **🌓 Dark Mode Support** - Full dark mode theming for all file components including modals and markdown preview
+   - **💾 Auto-sort** - Pinned files automatically move to top on toggle without page reload
+
+### Version 1.2.1 (Stable)
 - **Release Date:** December 4, 2025
 - **Highlights:**
    - **Task Editing** - Edit task titles directly with inline editing mode
@@ -41,6 +63,7 @@
 - **Bootstrap** `5.3.0` - CSS framework with custom theming
 - **Remix Icon** `4.7.0` - Icon library
 - **Axios** `1.4.0` - HTTP client
+- **marked** `11.1.1` - Markdown parser and renderer
 
 ### Backend
 - **Node.js** - JavaScript runtime
@@ -71,7 +94,8 @@ Daylytics/
 │   │   ├── pages/             # Page components
 │   │   │   ├── Dashboard.jsx
 │   │   │   ├── Login.jsx
-│   │   │   └── Register.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── FilesTab.jsx
 │   │   ├── styles/            # Custom CSS
 │   │   │   ├── theme.css
 │   │   │   └── motions.css
@@ -87,11 +111,13 @@ Daylytics/
 │   │   ├── models/            # Mongoose models
 │   │   │   ├── User.js
 │   │   │   ├── Task.js
-│   │   │   └── DailyArchive.js
+│   │   │   ├── DailyArchive.js
+│   │   │   └── File.js
 │   │   ├── routes/            # API route handlers
 │   │   │   ├── auth.js
 │   │   │   ├── tasks.js
-│   │   │   └── archive.js
+│   │   │   ├── archive.js
+│   │   │   └── files.js
 │   │   ├── middleware/        # Custom middleware
 │   │   │   └── auth.js
 │   │   ├── config/            # Configuration
@@ -200,11 +226,69 @@ This creates a test user:
 - `POST /api/archive/rollover?date=YYYY-MM-DD` - Archive tasks for date
 - `GET /api/archive` - Get all archived days
 
+### Files
+- `GET /api/files` - Get all files for current user
+- `GET /api/files/:id` - Get specific file
+- `POST /api/files` - Create new file
+- `PUT /api/files/:id` - Update file (title and/or content)
+- `DELETE /api/files/:id` - Delete file
+- `PATCH /api/files/:id/pin` - Toggle file pin status
+
 ---
 
 ## 📦 Version History
 
-### v1.2.1 (Current — Stable)
+### v1.3.1 (Current — Beta)
+**Release Date:** December 2025
+
+**New Features:**
+- ✅ **File Management System** - Create, edit, view, delete, and organize unlimited files/notes
+- ✅ **Rich Text Editor** - Full markdown toolbar with 14 formatting options:
+  - **Headings:** H1, H2, H3
+  - **Text Styling:** Bold (`**text**`), Italic (`_text_`)
+  - **Lists:** Bullet lists, Numbered lists
+  - **Code:** Inline code (`` `code` ``), Code blocks (` ```code``` `)
+  - **Advanced:** Links, Blockquotes, Tables, Horizontal rules
+- ✅ **Pin Files** - Pin important files to keep them at the top with instant reordering
+- ✅ **Fullscreen Modals** - Create, edit, and view modals cover entire viewport for distraction-free writing
+- ✅ **Markdown Rendering** - File content rendered with `marked` library, showing formatted preview
+- ✅ **File Cards** - Beautiful grid layout with title truncation, stripped markdown preview, and "Last updated" timestamp
+- ✅ **Files Tab** - New dedicated tab in navigation with localStorage persistence
+- ✅ **Character Limits** - Title max 200 chars, Content max 50,000 chars with live counters
+- ✅ **Delete Confirmation** - Modal confirmation before deleting files
+
+**Improvements:**
+- ✅ **Consistent UI** - File management follows same dark/light theme and modal patterns as Tasks
+- ✅ **Responsive Toolbar** - Rich text toolbar adapts to mobile screens with horizontal scrolling
+- ✅ **Per-File Loading States** - Individual pin button loaders without full page refresh
+- ✅ **Auto-sort on Pin** - Pinned files automatically move to top when toggled (no page reload needed)
+- ✅ **Dark Mode Support** - Full theming for modals, toolbar, markdown preview, and all file components
+- ✅ **Backdrop Blur** - Modal backgrounds match task modal behavior with blur effect
+- ✅ **Click-Outside-to-Close** - Modals close when clicking backdrop (same UX as tasks)
+- ✅ **Conditional Dashboard Sections** - Welcome/hero sections hide when Files tab is active
+- ✅ **File Validation** - Server-side validation for title and content length
+- ✅ **Indexed Database** - Optimized queries with compound indexes on user, isPinned, and timestamps
+- ✅ **Smart Formatting** - Toolbar buttons properly handle text selection and cursor positioning
+
+**API Updates:**
+- `GET /api/files` - Fetch all files for logged-in user (sorted by pinned and updatedAt)
+- `GET /api/files/:id` - Get specific file by ID
+- `POST /api/files` - Create new file with validation
+- `PUT /api/files/:id` - Update file title and/or content
+- `DELETE /api/files/:id` - Delete file
+- `PATCH /api/files/:id/pin` - Toggle pin status
+
+**Bug Fixes:**
+- ✅ Fixed inline code, bold, and italic formatting not applying to selected text
+- ✅ Fixed modal border-radius in dark mode
+- ✅ Fixed toolbar colors in dark mode
+- ✅ Fixed markdown preview showing white background in dark mode
+- ✅ Fixed theme toggle showing unnecessary loader
+- ✅ Fixed modals covering entire viewport with proper scrolling
+
+---
+
+### v1.2.1 (Stable)
 **Release Date:** December 4, 2025
 
 **New Features:**

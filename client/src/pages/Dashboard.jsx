@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import ProfileModal from "../components/ProfileModal";
 import Modal from "../components/Modal";
 import { useToast } from "../components/ToastProvider";
+import FilesTab from "./FilesTab";
 
 const formatDate = (d = new Date()) => d.toISOString().slice(0, 10);
 
@@ -27,10 +28,17 @@ const Dashboard = () => {
   const [editingTask, setEditingTask] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [viewingTask, setViewingTask] = useState(null);
-  const [activeTab, setActiveTab] = useState("tasks");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "tasks";
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logout, user, refreshUser } = useAuth();
   const { addToast } = useToast();
+
+  // Save activeTab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   const formatTimestamp = (value) => {
     const options = {
@@ -212,31 +220,33 @@ const Dashboard = () => {
           mobileMenuOpen={mobileMenuOpen}
           onToggleMenu={setMobileMenuOpen}
           sidebarContent={
-            <div className="mobile-sidebar-card">
-              <div className="mb-3">
-                <h5 className="mb-1">{greetingTitle}</h5>
-                <p className="text-muted mb-0">
-                  Keep your tasks and completion insights in one place.
-                </p>
+            activeTab !== "files" && (
+              <div className="mobile-sidebar-card">
+                <div className="mb-3">
+                  <h5 className="mb-1">{greetingTitle}</h5>
+                  <p className="text-muted mb-0">
+                    Keep your tasks and completion insights in one place.
+                  </p>
+                </div>
+                <div className="d-flex gap-4 flex-wrap mt-2 dashboard-stats dashboard-stats-compact">
+                  <div className="d-flex flex-column">
+                    <p className="text-muted mb-1">Working day</p>
+                    <h2 className="mb-0">{date}</h2>
+                  </div>
+                  <div className="d-flex flex-column">
+                    <p className="text-muted mb-1">Tasks today</p>
+                    <strong>{tasks.length}</strong>
+                  </div>
+                  <div className="d-flex flex-column">
+                    <p className="text-muted mb-1">Archive entries</p>
+                    <strong>{archives.length}</strong>
+                  </div>
+                </div>
               </div>
-              <div className="d-flex gap-4 flex-wrap mt-2 dashboard-stats dashboard-stats-compact">
-                <div className="d-flex flex-column">
-                  <p className="text-muted mb-1">Working day</p>
-                  <h2 className="mb-0">{date}</h2>
-                </div>
-                <div className="d-flex flex-column">
-                  <p className="text-muted mb-1">Tasks today</p>
-                  <strong>{tasks.length}</strong>
-                </div>
-                <div className="d-flex flex-column">
-                  <p className="text-muted mb-1">Archive entries</p>
-                  <strong>{archives.length}</strong>
-                </div>
-              </div>
-            </div>
+            )
           }
         />
-        {loadingData && <Loader message="Syncing your day..." />}
+        {loadingData && activeTab !== "files" && <Loader message="Syncing your day..." />}
         <div className="mobile-quick-add panel panel-shadow d-md-none">
           <div className="mb-3">
             <h5 className="mb-1">Add a task</h5>
@@ -276,45 +286,47 @@ const Dashboard = () => {
             </button>
           </form>
         </div>
-        <div className="dashboard-hero panel panel-shadow mb-4 d-none d-md-block">
-          <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-            <div>
-              <h3 className="mb-1">{greetingTitle}</h3>
-              <p className="text-muted mb-0">
-                Keep your tasks and completion insights in one place.
-              </p>
+        {activeTab !== "files" && (
+          <div className="dashboard-hero panel panel-shadow mb-4 d-none d-md-block">
+            <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+              <div>
+                <h3 className="mb-1">{greetingTitle}</h3>
+                <p className="text-muted mb-0">
+                  Keep your tasks and completion insights in one place.
+                </p>
+              </div>
+              <div className="d-flex gap-2 flex-wrap align-items-center">
+                <input
+                  type="date"
+                  className="form-control"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  onClick={() => setDate(formatDate())}
+                >
+                  Today
+                </button>
+              </div>
             </div>
-            <div className="d-flex gap-2 flex-wrap align-items-center">
-              <input
-                type="date"
-                className="form-control"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-              <button
-                className="btn btn-outline-primary"
-                type="button"
-                onClick={() => setDate(formatDate())}
-              >
-                Today
-              </button>
+            <div className="d-flex gap-4 flex-wrap mt-2 dashboard-stats">
+              <div className="d-flex flex-column">
+                <p className="text-muted mb-1">Working day</p>
+                <h2 className="mb-0">{date}</h2>
+              </div>
+              <div className="d-flex flex-column">
+                <p className="text-muted mb-1">Tasks today</p>
+                <strong>{tasks.length}</strong>
+              </div>
+              <div className="d-flex flex-column">
+                <p className="text-muted mb-1">Archive entries</p>
+                <strong>{archives.length}</strong>
+              </div>
             </div>
           </div>
-          <div className="d-flex gap-4 flex-wrap mt-2 dashboard-stats">
-            <div className="d-flex flex-column">
-              <p className="text-muted mb-1">Working day</p>
-              <h2 className="mb-0">{date}</h2>
-            </div>
-            <div className="d-flex flex-column">
-              <p className="text-muted mb-1">Tasks today</p>
-              <strong>{tasks.length}</strong>
-            </div>
-            <div className="d-flex flex-column">
-              <p className="text-muted mb-1">Archive entries</p>
-              <strong>{archives.length}</strong>
-            </div>
-          </div>
-        </div>
+        )}
 
         {activeTab === "tasks" && (
           <section className="panel panel-shadow mb-4 tabbed-section active-tab">
@@ -500,6 +512,10 @@ const Dashboard = () => {
             </div>
           </section>
         )}
+
+        {activeTab === "files" && (
+          <FilesTab />
+        )}
       </div>
 
       <ProfileModal
@@ -628,7 +644,7 @@ const Dashboard = () => {
         userSelect: 'none',
         pointerEvents: 'none'
       }}>
-        v1.2.1
+        v1.3.1 
       </div>
 
        <div style={{

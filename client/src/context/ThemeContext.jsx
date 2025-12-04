@@ -92,9 +92,7 @@ export const ThemeProvider = ({ children }) => {
         // any non-serializable values that may exist elsewhere in user.settings
         const payload = { ['daylytics-theme']: next };
         await API.put('/api/auth/settings', { settings: payload });
-        // refresh the current user data so AuthContext.user (and any other consumers)
-        // receive the updated settings object.
-        if (typeof refreshUser === 'function') await refreshUser();
+        // Don't refresh user to avoid triggering loader - just update locally
       } catch (err) {
         // best-effort - don't block UI on failure
         console.error('Failed saving theme to server', err?.response?.data || err.message || err);
