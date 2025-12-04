@@ -27,7 +27,13 @@ const Navbar = ({
     if (mobileMenuOpen) onToggleMenu(false);
   };
 
-  const nextTheme = theme === "light" ? "dark" : "light";
+  // compute the currently applied theme (resolve 'system' to light/dark)
+  const appliedTheme = theme === 'system'
+    ? (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light')
+    : theme;
+
+  // toggle target based on applied theme so toggling always flips light <-> dark
+  const nextTheme = appliedTheme === 'light' ? 'dark' : 'light';
   const toggleMenu = () => onToggleMenu((prev) => !prev);
 
   return (
@@ -79,12 +85,12 @@ const Navbar = ({
           <button
             type="button"
             className="theme-toggle-btn"
-            onClick={toggleTheme}
+            onClick={() => toggleTheme(nextTheme)}
             aria-label={`Switch to ${nextTheme} mode`}
           >
             <i
               className={
-                theme === "light" ? "ri-moon-line" : "ri-sun-line"
+                appliedTheme === "light" ? "ri-moon-line" : "ri-sun-line"
               }
               aria-hidden="true"
             ></i>

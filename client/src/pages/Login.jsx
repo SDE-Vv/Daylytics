@@ -1,31 +1,37 @@
-import React, { useState } from 'react'
-import API from '../api'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useToast } from '../components/ToastProvider'
+import React, { useEffect, useState } from "react";
+import API from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/ToastProvider";
 
 const Login = () => {
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [submitting, setSubmitting] = useState(false)
-  const navigate = useNavigate()
-  const { login } = useAuth()
-  const { addToast } = useToast()
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { addToast } = useToast();
 
-  const onChange = e => setForm({ ...form, [e.target.name]: e.target.value })
-  const onSubmit = async e => {
-    e.preventDefault()
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const onSubmit = async (e) => {
+    e.preventDefault();
     try {
-      setSubmitting(true)
-      const { data } = await API.post('/api/auth/login', form)
-      login(data.token, data.user)
-      addToast('success', 'Welcome back!')
-      navigate('/dashboard')
+      setSubmitting(true);
+      const { data } = await API.post("/api/auth/login", form);
+      login(data.token, data.user);
+      addToast("success", "Welcome back!");
+      navigate("/dashboard");
     } catch (err) {
-      addToast('error', err.response?.data?.msg || 'Invalid credentials')
+      addToast("error", err.response?.data?.msg || "Invalid credentials");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, []);
 
   return (
     <div className="auth-page">
@@ -40,7 +46,7 @@ const Login = () => {
           <p className="auth-brand-tagline">
             Track your daily tasks and completion insights in one place
           </p>
-          <div className="auth-version">v1.0.1</div>
+          <div className="auth-version">v1.1.1</div>
           <div className="auth-features">
             <div className="auth-feature">
               <i className="ri-checkbox-circle-line"></i>
@@ -61,7 +67,9 @@ const Login = () => {
         <div className="auth-form-container">
           <div className="auth-form-header">
             <h2 className="auth-form-title">Welcome back</h2>
-            <p className="auth-form-subtitle">Sign in to continue to your dashboard</p>
+            <p className="auth-form-subtitle">
+              Sign in to continue to your dashboard
+            </p>
           </div>
           <form onSubmit={onSubmit} className="auth-form">
             <div className="form-group">
@@ -94,7 +102,10 @@ const Login = () => {
                 />
               </div>
             </div>
-            <button className="btn btn-primary w-100 auth-submit-btn" disabled={submitting}>
+            <button
+              className="btn btn-primary w-100 auth-submit-btn"
+              disabled={submitting}
+            >
               {submitting ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2"></span>
@@ -111,13 +122,15 @@ const Login = () => {
           <div className="auth-footer">
             <p className="auth-footer-text">
               Don't have an account?
-              <Link to="/register" className="auth-link">Create one</Link>
+              <Link to="/register" className="auth-link">
+                Create one
+              </Link>
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

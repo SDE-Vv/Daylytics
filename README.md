@@ -2,13 +2,21 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.0.1` (Stable)
+**Current Version:** `1.1.1` (Stable)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.0.1 (Current)
+### Version 1.1.1 (Current — Stable)
+- **Release Date:** December 4, 2025
+- **Highlights:**
+   - Fixed login redirection so users are now automatically redirected to the dashboard after successful sign-in.
+   - Dark / Light theme is now dynamic, fetched from the server for logged-in users and persisted across devices (supports `system`, `light`, `dark`).
+   - Improved UX for task updates and deletions — per-task loading indicators prevent duplicate actions and provide clearer feedback.
+   - Fixed layout and responsiveness issues on very small screens so controls remain accessible and usable.
+   - Added a GitHub contribution button on the dashboard for quick access to the project repo.
+   - Fixed visual task border issue that caused inconsistent item styling.
 - **User Authentication** - Secure registration and login with JWT tokens
 - **Daily Task Management** - Create, toggle, and delete tasks for specific dates
 - **Task Analytics** - Archive past tasks and view completion statistics
@@ -20,12 +28,6 @@
 - **Split-Screen Auth** - Beautiful login/register pages with branding
 - **Server Pinging** - Automated keep-alive mechanism that reduces request delays
 - **CORS Security** - Restricted access to localhost and production frontend only
-
-### 🔮 Coming Soon
-- **v1.1.0** - Task priorities, categories, and filters
-- **v1.2.0** - Weekly/Monthly analytics dashboard
-- **v1.3.0** - Task reminders and notifications
-- **v2.0.0** - Collaborative tasks and team workspaces
 
 ---
 
@@ -199,7 +201,20 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.0.1 (Current - Stable)
+### v1.1.1 (Current — Stable)
+**Release Date:** December 4, 2025
+
+**Fixes & Improvements:**
+- ✅ Fixed login redirection — users now go straight to the dashboard after successful login.
+- ✅ Theme improvements — dark/light theme is now dynamic and fetched/persisted per-user (supports `system`, `light`, `dark`).
+- ✅ Better UX for task updates/deletes — per-task loaders and disabled controls while requests are in-flight.
+- ✅ Improved responsiveness on very small screens so layout and controls remain usable.
+- ✅ Added GitHub contribution button directly on the dashboard.
+- ✅ Fixed task border visual issues for consistent item styling.
+
+---
+
+### v1.0.1 (Stable)
 **Release Date:** December 4, 2025
 
 **New Features:**
@@ -275,17 +290,3 @@ npm run preview  # Preview production build
 MIT
 
 ---
-
-**Built for personal productivity tracking** 🚀
-
-Recommended next-version roadmap (v2 → v5)
-
-v2 (v1.1): Improve frontend UX, add validation, better error handling, and user profile
-
-v3 (v1.5): Add scheduled archiving (cron or cloud scheduler) and analytics dashboards (graphs)
-
-v4 (v2.0): Add offline mode, task syncing, and more granular analytics (time-of-day, categories)
-
-v5 (v3.0): Add collaboration features, multi-user workspaces, and mobile-first design
-
-If you'd like, I can implement any of these next steps — tell me which one to prioritize and I'll scaffold it next.
