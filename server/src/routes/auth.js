@@ -46,11 +46,57 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// GET /api/auth/me - return current user data
+// GET /api/auth/me - return current user data including settings
 router.get('/me', auth, (req, res) => {
   if (!req.user) return res.status(404).json({ msg: 'User not found' });
-  const { _id: id, email, name, createdAt } = req.user;
-  res.json({ id, email, name, createdAt });
+  const { _id: id, email, name, createdAt, settings } = req.user;
+  // include settings so clients can read persisted theme and other preferences
+  res.json({ id, email, name, createdAt, settings });
+});
+
+// PUT /api/auth/settings - update user settings
+router.put('/settings', auth, async (req, res) => {
+  try {
+    const { settings } = req.body;
+
+    if (typeof settings !== 'object' || Array.isArray(settings)) {
+      return res.status(400).json({ msg: 'Invalid settings format' });
+    }
+
+    // validate theme value if provided
+    if (settings.hasOwnProperty('daylytics-theme')) {
+      const val = settings['daylytics-theme'];
+      const allowed = ['light', 'dark', 'system'];
+      if (typeof val !== 'string' || !allowed.includes(val)) {
+        return res.status(400).json({ msg: 'Invalid theme value' });
+      }
+    }
+
+    // sanitize current settings by removing non-primitive values (avoid carrying over DOM/React nodes)
+    const sanitizedCurrent = {};
+    for (const [k, v] of Object.entries(req.user.settings || {})) {
+      if (v === null) sanitizedCurrent[k] = v;
+      else if (['string', 'number', 'boolean'].includes(typeof v)) sanitizedCurrent[k] = v;
+      // skip any non-primitive values (objects/functions)
+    }
+
+    // validate incoming settings shallow types and prepare sanitized update
+    const sanitizedIncoming = {};
+    for (const [k, v] of Object.entries(settings)) {
+      if (v === null || ['string', 'number', 'boolean'].includes(typeof v)) {
+        sanitizedIncoming[k] = v;
+      } else {
+        return res.status(400).json({ msg: `Invalid value for settings.${k}` });
+      }
+    }
+
+    // merge sanitized current and incoming
+    req.user.settings = Object.assign({}, sanitizedCurrent, sanitizedIncoming);
+    await req.user.save();
+    res.json({ settings: req.user.settings });
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
 });
 
 // PUT /api/auth/profile - update name/email

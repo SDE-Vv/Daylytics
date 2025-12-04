@@ -18,6 +18,9 @@ const Dashboard = () => {
   const [archives, setArchives] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [submittingTask, setSubmittingTask] = useState(false);
+  // per-task loading sets for update (toggle) and delete operations
+  const [updatingTasks, setUpdatingTasks] = useState(() => new Set());
+  const [deletingTasks, setDeletingTasks] = useState(() => new Set());
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [activeTab, setActiveTab] = useState("tasks");
@@ -82,6 +85,15 @@ const Dashboard = () => {
   };
 
   const toggle = async (id) => {
+    if (updatingTasks.has(id)) return; // already processing
+
+    // mark updating
+    setUpdatingTasks((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+
     try {
       await API.patch(`/api/tasks/${id}`);
       setTasks((prev) =>
@@ -89,16 +101,36 @@ const Dashboard = () => {
       );
     } catch (err) {
       addToast("error", "Unable to update task");
+    } finally {
+      setUpdatingTasks((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
   const removeTask = async (id) => {
+    if (deletingTasks.has(id)) return;
+
+    setDeletingTasks((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+
     try {
       await API.delete(`/api/tasks/${id}`);
       setTasks((prev) => prev.filter((t) => t._id !== id));
       addToast("success", "Task removed");
     } catch (err) {
       addToast("error", "Unable to delete task");
+    } finally {
+      setDeletingTasks((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -278,17 +310,21 @@ const Dashboard = () => {
                   className={`list-group-item d-flex justify-content-between align-items-center ${
                     t.done ? "list-group-item-success" : ""
                   }`}
-                  onClick={() => toggle(t._id)}
+                  onClick={() => !updatingTasks.has(t._id) && toggle(t._id)}
                   role="button"
                 >
                   <div className="d-flex align-items-center gap-3">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      checked={t.done}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={() => toggle(t._id)}
-                    />
+                    {updatingTasks.has(t._id) ? (
+                      <div className="spinner-border spinner-border-sm text-primary" role="status" />
+                    ) : (
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={t.done}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggle(t._id)}
+                      />
+                    )}
                     <span className={t.done ? "text-decoration-line-through" : ""}>
                       {t.title}
                     </span>
@@ -300,12 +336,17 @@ const Dashboard = () => {
                     <button
                       className="task-delete-btn"
                       type="button"
+                      disabled={deletingTasks.has(t._id)}
                       onClick={(e) => {
                         e.stopPropagation();
                         removeTask(t._id);
                       }}
                     >
-                      ✕
+                      {deletingTasks.has(t._id) ? (
+                        <div className="spinner-border spinner-border-sm text-danger" role="status" />
+                      ) : (
+                        "✕"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -387,7 +428,7 @@ const Dashboard = () => {
       {/* Version Display */}
       <div style={{
         position: 'fixed',
-        bottom: '20px',
+        top: '10px',
         right: '20px',
         fontSize: '11px',
         opacity: 0.7,
@@ -402,7 +443,28 @@ const Dashboard = () => {
         userSelect: 'none',
         pointerEvents: 'none'
       }}>
-        v1.0.1
+        v1.1.1
+      </div>
+
+       <div style={{
+        position: 'fixed',
+        top: '10px',
+        right: '80px',
+        fontSize: '11px',
+        opacity: 0.7,
+        padding: '6px 12px',
+        borderRadius: '20px',
+        backgroundColor: 'var(--bs-body-bg)',
+        border: '1px solid var(--bs-border-color)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        fontWeight: '500',
+        color: 'var(--bs-body-color)',
+        zIndex: 1000,
+        userSelect: 'none',
+        pointerEvents: 'auto',
+        cursor: 'pointer'
+      }} onClick={() => window.open('https://github.com/VanshSharmaSDE/Daylytics/', '_blank')}>
+        Github
       </div>
     </>
   );

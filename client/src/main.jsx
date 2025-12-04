@@ -12,14 +12,14 @@ import { ToastProvider } from './components/ToastProvider'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
-        <ToastProvider>
-          <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <ToastProvider>
             <App />
-          </AuthProvider>
-        </ToastProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+          </ToastProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </AuthProvider>
   </React.StrictMode>
 )
