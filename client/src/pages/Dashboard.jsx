@@ -644,7 +644,7 @@ const Dashboard = () => {
         userSelect: 'none',
         pointerEvents: 'none'
       }}>
-        v1.3.1 
+        v1.4.2 
       </div>
 
        <div style={{

@@ -2,13 +2,54 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.3.1` (Beta)
+**Current Version:** `1.4.2` (Beta)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.3.1 (Current — Beta)
+### Version 1.4.2 (Current — Beta)
+- **Release Date:** December 2025
+- **Bug Fixes:**
+   - **🐛 Archive Duplicate Prevention** - Fixed issue where the same day could be archived multiple times
+     - Backend now checks for existing archives before creating new ones
+     - Returns error message if date already archived
+     - Prevents database pollution with duplicate entries
+
+### Version 1.4.1 (Beta)
+- **Release Date:** December 2025
+- **Highlights:**
+   - **📁 Advanced File & Folder Management System** - Complete hierarchical file organization
+   - **🗂️ Folder System** - Create unlimited folders and subfolders to organize your files
+     - Nested folder structure with parent-child relationships
+     - Breadcrumb navigation for easy folder traversal
+     - Pin folders to keep important ones at the top
+     - Delete empty folders with confirmation
+   - **📝 Enhanced File Management** - Files can be organized within folders or kept at root level
+     - Select folder when creating new files
+     - Move files between folders while editing
+     - Files inherit current folder location by default
+   - **📌 Folder & File Pinning** - Pin both folders and files for quick access
+     - Pinned items automatically sort to top
+     - Individual loading states for each pin action
+     - Instant reordering without page reload
+   - **🗑️ Smart Delete System** - Icon-based delete for both files and folders
+     - Delete icon buttons next to pin buttons
+     - Confirmation modals for both files and folders
+     - Backend validation prevents deleting non-empty folders
+   - **⚡ Operation Loading States** - Full-page loader with contextual messages
+     - "Creating your file..." / "Creating folder..."
+     - "Updating your file..." / "Deleting folder..."
+     - Prevents double-clicks and improves UX
+   - **📱 Mobile-Optimized Navigation** - Files tab accessible via sidebar on mobile
+     - Hidden from mobile navbar icons
+     - Available in hamburger menu
+   - **🎨 Consistent Icon Design** - Unified UI with pin and delete icons
+     - Folder cards show pin/delete icons in top-right
+     - File cards match folder styling exactly
+     - Yellow folder icons with visual hierarchy
+
+### Version 1.3.1 (Beta)
 - **Release Date:** December 2025
 - **Highlights:**
    - **📁 File Management System** - Create, edit, view, and delete unlimited files/notes
@@ -112,12 +153,14 @@ Daylytics/
 │   │   │   ├── User.js
 │   │   │   ├── Task.js
 │   │   │   ├── DailyArchive.js
-│   │   │   └── File.js
+│   │   │   ├── File.js
+│   │   │   └── Folder.js
 │   │   ├── routes/            # API route handlers
 │   │   │   ├── auth.js
 │   │   │   ├── tasks.js
 │   │   │   ├── archive.js
-│   │   │   └── files.js
+│   │   │   ├── files.js
+│   │   │   └── folders.js
 │   │   ├── middleware/        # Custom middleware
 │   │   │   └── auth.js
 │   │   ├── config/            # Configuration
@@ -238,7 +281,70 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.3.1 (Current — Beta)
+### v1.4.2 (Current — Beta)
+**Release Date:** December 2025
+
+**Bug Fixes:**
+- ✅ **Archive Duplicate Prevention** - Fixed issue where the same day could be archived multiple times
+  - Backend now checks for existing archives before creating new ones
+  - Returns error message if date already archived
+  - Prevents database pollution with duplicate entries
+
+---
+
+### v1.4.1 (Beta)
+**Release Date:** December 2025
+
+**New Features:**
+- ✅ **Advanced File & Folder Management System** - Complete hierarchical file organization
+- ✅ **Folder System** - Create unlimited folders and subfolders to organize your files
+  - Nested folder structure with parent-child relationships
+  - Breadcrumb navigation for easy folder traversal
+  - Pin folders to keep important ones at the top
+  - Delete empty folders with confirmation
+- ✅ **Enhanced File Management** - Files can be organized within folders or kept at root level
+  - Select folder when creating new files
+  - Move files between folders while editing
+  - Files inherit current folder location by default
+- ✅ **Folder & File Pinning** - Pin both folders and files for quick access
+  - Pinned items automatically sort to top
+  - Individual loading states for each pin action
+  - Instant reordering without page reload
+- ✅ **Smart Delete System** - Icon-based delete for both files and folders
+  - Delete icon buttons next to pin buttons
+  - Confirmation modals for both files and folders
+  - Backend validation prevents deleting non-empty folders
+- ✅ **Operation Loading States** - Full-page loader with contextual messages
+  - "Creating your file..." / "Creating folder..."
+  - "Updating your file..." / "Deleting folder..."
+  - Prevents double-clicks and improves UX
+- ✅ **Mobile-Optimized Navigation** - Files tab accessible via sidebar on mobile
+  - Hidden from mobile navbar icons
+  - Available in hamburger menu
+- ✅ **Consistent Icon Design** - Unified UI with pin and delete icons
+  - Folder cards show pin/delete icons in top-right
+  - File cards match folder styling exactly
+  - Yellow folder icons with visual hierarchy
+
+**API Updates:**
+- `GET /api/folders` - Get folders for current user (with optional parentFolder filter)
+- `GET /api/folders/:id` - Get specific folder
+- `POST /api/folders` - Create new folder
+- `PUT /api/folders/:id` - Update folder (rename/move)
+- `DELETE /api/folders/:id` - Delete empty folder
+- `PATCH /api/folders/:id/pin` - Toggle folder pin status
+- Updated `GET /api/files` - Now accepts folder query parameter
+- Updated `POST /api/files` - Accepts folder field for organization
+- Updated `PUT /api/files/:id` - Can move files between folders
+
+**Database Updates:**
+- New `Folder` model with user, name, parentFolder, isPinned fields
+- Updated `File` model with folder reference field
+- Compound indexes for optimized queries
+
+---
+
+### v1.3.1 (Beta)
 **Release Date:** December 2025
 
 **New Features:**
@@ -361,18 +467,6 @@ This creates a test user:
 - React 18.2.0, Vite 5.0.0
 - Express 4.18.2, MongoDB, Mongoose 7.0.0
 - JWT authentication, bcryptjs
-
----
-
-## 🎯 Usage
-
-1. **Register/Login** - Create account or sign in
-2. **Add Tasks** - Use quick-add panel or inline form to create tasks
-3. **Manage Tasks** - Toggle completion status or delete tasks
-4. **View Analytics** - Check completion statistics for archived days
-5. **Update Profile** - Change name, email, or password from profile modal
-6. **Toggle Theme** - Switch between light and dark mode
-7. **Archive Tasks** - Archive previous days to track productivity
 
 ---
 

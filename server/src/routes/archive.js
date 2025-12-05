@@ -16,6 +16,12 @@ router.post('/rollover', auth, async (req, res) => {
       date = formatDate(yesterday);
     }
 
+    // Check if this date is already archived
+    const existingArchive = await DailyArchive.findOne({ user: req.user._id, date });
+    if (existingArchive) {
+      return res.status(400).json({ msg: 'This date has already been archived', date });
+    }
+
     const tasks = await Task.find({ user: req.user._id, date });
     if (!tasks || tasks.length === 0) return res.status(200).json({ msg: 'No tasks to archive for date', date });
 

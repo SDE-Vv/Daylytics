@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 const archiveRoutes = require('./routes/archive');
 const fileRoutes = require('./routes/files');
+const folderRoutes = require('./routes/folders');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/archive', archiveRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/folders', folderRoutes);
 
 // Simple health route
 app.get('/api/health', (req, res) => res.json({ status: 'ok', now: new Date().toISOString() }));

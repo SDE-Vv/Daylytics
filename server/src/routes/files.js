@@ -6,7 +6,15 @@ const router = express.Router();
 // GET /api/files - Get all files for user
 router.get('/', auth, async (req, res) => {
   try {
-    const files = await File.find({ user: req.user._id })
+    const { folder } = req.query;
+    const query = { user: req.user._id };
+    
+    // Filter by folder if specified
+    if (folder !== undefined) {
+      query.folder = folder === 'null' || folder === '' ? null : folder;
+    }
+    
+    const files = await File.find(query)
       .sort({ isPinned: -1, updatedAt: -1 });
     res.json(files);
   } catch (err) {
@@ -28,7 +36,7 @@ router.get('/:id', auth, async (req, res) => {
 // POST /api/files - Create new file
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, content, tags } = req.body;
+    const { title, content, tags, folder } = req.body;
     if (!title) return res.status(400).json({ msg: 'Title required' });
 
     if (title.length > 200) {
@@ -43,7 +51,8 @@ router.post('/', auth, async (req, res) => {
       user: req.user._id,
       title,
       content: content || '',
-      tags: tags || []
+      tags: tags || [],
+      folder: folder || null
     });
     await file.save();
     res.json(file);
@@ -55,7 +64,7 @@ router.post('/', auth, async (req, res) => {
 // PUT /api/files/:id - Update file
 router.put('/:id', auth, async (req, res) => {
   try {
-    const { title, content, tags, isPinned } = req.body;
+    const { title, content, tags, isPinned, folder } = req.body;
 
     const file = await File.findOne({ _id: req.params.id, user: req.user._id });
     if (!file) return res.status(404).json({ msg: 'File not found' });
@@ -76,6 +85,7 @@ router.put('/:id', auth, async (req, res) => {
 
     if (tags !== undefined) file.tags = tags;
     if (isPinned !== undefined) file.isPinned = isPinned;
+    if (folder !== undefined) file.folder = folder || null;
 
     await file.save();
     res.json(file);
