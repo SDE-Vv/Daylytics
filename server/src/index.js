@@ -9,6 +9,7 @@ const taskRoutes = require('./routes/tasks');
 const archiveRoutes = require('./routes/archive');
 const fileRoutes = require('./routes/files');
 const folderRoutes = require('./routes/folders');
+const { startAutoArchiveScheduler } = require('./services/autoArchive');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -69,4 +70,7 @@ mongoose.connection.on('error', (err) => {});
 app.listen(PORT, () => {
     const state = mongoose.connection.readyState;
     const stateText = state === 1 ? 'connected' : state === 2 ? 'connecting' : state === 0 ? 'disconnected' : 'unknown';
+    
+    // Start auto-archive scheduler after server starts
+    startAutoArchiveScheduler();
 });

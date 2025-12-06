@@ -2,13 +2,26 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.4.2` (Beta)
+**Current Version:** `1.4.3` (Beta)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.4.2 (Current — Beta)
+### Version 1.4.3 (Current — Beta)
+- **Release Date:** December 2025
+- **New Features:**
+   - **⏰ Automatic Daily Archiving** - System automatically archives tasks at midnight (12:00 AM)
+     - No manual archiving needed - runs automatically every day
+     - Archives all tasks from previous day (completed and incomplete)
+     - Tasks stay on their original date and never move to next day
+     - Each new day starts fresh with zero tasks
+     - Scheduler calculates exact time until midnight for precise execution
+   - **🗑️ Removed Manual Archive Button** - Archive button removed from Analytics tab
+     - Updated UI to show "auto-archived at midnight" message
+     - System handles all archiving automatically
+
+### Version 1.4.2 (Beta)
 - **Release Date:** December 2025
 - **Bug Fixes:**
    - **🐛 Archive Duplicate Prevention** - Fixed issue where the same day could be archived multiple times
@@ -281,7 +294,32 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.4.2 (Current — Beta)
+### v1.4.3 (Current — Beta)
+**Release Date:** December 2025
+
+**New Features:**
+- ✅ **Automatic Daily Archiving** - System automatically archives tasks at midnight (12:00 AM)
+  - Auto-archive service runs at exactly midnight every day
+  - Archives all tasks from previous day (both completed and incomplete)
+  - Tasks remain on their original date permanently
+  - Each new day starts completely fresh with zero tasks
+  - Scheduler calculates precise time until midnight for accurate execution
+  - No manual intervention required
+
+**UI Updates:**
+- ✅ **Removed Manual Archive Button** - Archive button removed from Analytics tab
+  - Updated Analytics header to show "auto-archived at midnight" message
+  - System fully automates the archiving process
+
+**Backend Updates:**
+- New `autoArchive.js` service with midnight scheduler
+- Auto-archive function processes all users automatically
+- Calculates milliseconds until next midnight for precise scheduling
+- Logs all archive operations for monitoring
+
+---
+
+### v1.4.2 (Beta)
 **Release Date:** December 2025
 
 **Bug Fixes:**

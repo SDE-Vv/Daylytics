@@ -482,15 +482,8 @@ const Dashboard = () => {
             <div className="panel-header d-flex justify-content-between align-items-center">
               <div>
                 <h5 className="mb-0">Analytics</h5>
-                <small>Daily completion history</small>
+                <small>Daily completion history (auto-archived at midnight)</small>
               </div>
-              <button
-                className="btn btn-outline-primary"
-                type="button"
-                onClick={rolloverYesterday}
-              >
-                Archive yesterday
-              </button>
             </div>
 
             <div className="analytics-grid">
@@ -644,7 +637,7 @@ const Dashboard = () => {
         userSelect: 'none',
         pointerEvents: 'none'
       }}>
-        v1.4.2 
+        v1.4.3 
       </div>
 
        <div style={{
