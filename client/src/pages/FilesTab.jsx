@@ -410,7 +410,12 @@ const FilesTab = () => {
       )}
 
       {/* Folders List */}
-      {folders.length > 0 && (
+      { files.length === 0 && folders.length === 0 ? (
+        <div className="text-center py-5 text-muted">
+          <i className="ri-file-line" style={{ fontSize: '3rem' }}></i>
+          <p className="mt-3">No files or folders yet. Create your first one!</p>
+        </div>
+      ) : folders.length > 0 ? (
         <div className="mb-4">
           <h5 className="mb-3">Folders</h5>
           <div className="row g-3">
@@ -459,7 +464,7 @@ const FilesTab = () => {
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Files List */}
       {files.length === 0 && folders.length === 0 ? (
