@@ -561,7 +561,7 @@ const FilesTab = () => {
                   setNewFolderName('');
                 }} disabled={operationLoading}>Cancel</button>
                 <button type="button" className="btn btn-primary" onClick={handleCreateFolder} disabled={operationLoading}>
-                  {operationLoading ? 'Creating...' : 'Create Folder'}
+                  {operationLoading ? 'Creating...' : <>Create <i className="ri-add-fill"></i></>}
                 </button>
               </div>
             </div>
@@ -584,14 +584,32 @@ const FilesTab = () => {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h5 className="modal-title">Create New File</h5>
-                <button type="button" className="btn-close" onClick={() => {
+                <div className='d-flex gap-2'>
+                  <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowCreateModal(false);
                   setNewFile({ title: '', content: '', folder: null });
-                }}></button>
+                }} disabled={operationLoading}>Cancel</button>
+                <button type="button" className="btn btn-primary" onClick={handleCreateFile} disabled={operationLoading}>
+                  {operationLoading ? 'Creating...' : <>Create <i className="ri-add-fill"></i></>}
+                </button>
+                </div>
               </div>
               <div className="modal-body">
         <div>
-                <div className="mb-3">
+                <div className='d-flex justify-content-center gap-2'>
+                  <div className="mb-3 w-full">
+                  <label className="form-label">Title</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter file title (max 200 characters)"
+                    value={newFile.title}
+                    onChange={(e) => setNewFile({ ...newFile, title: e.target.value })}
+                    maxLength={200}
+                  />
+                  <small className="text-muted">{newFile.title.length}/200</small>
+                </div>
+                  <div className="mb-3 w-full">
                   <label className="form-label">Folder (Optional)</label>
                   <select
                     className="form-select"
@@ -606,21 +624,9 @@ const FilesTab = () => {
                     ))}
                   </select>
                 </div>
-                <div className="mb-3">
-                  <label className="form-label">Title</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter file title (max 200 characters)"
-                    value={newFile.title}
-                    onChange={(e) => setNewFile({ ...newFile, title: e.target.value })}
-                    maxLength={200}
-                  />
-                  <small className="text-muted">{newFile.title.length}/200</small>
                 </div>
                 
                 <div className="mb-3">
-                  <label className="form-label">Content</label>
                   
                   {/* Rich Text Toolbar */}
                   <div className="toolbar mb-2 p-2 border rounded">
@@ -682,7 +688,7 @@ const FilesTab = () => {
                   <textarea
                     id="create-content"
                     className="form-control"
-                    rows="15"
+                    rows="18"
                     placeholder="Write your content here using markdown formatting..."
                     value={newFile.content}
                     onChange={(e) => setNewFile({ ...newFile, content: e.target.value })}
@@ -691,15 +697,6 @@ const FilesTab = () => {
                   <small className="text-muted">{newFile.content.length}/50,000</small>
                 </div>
         </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowCreateModal(false);
-                  setNewFile({ title: '', content: '', folder: null });
-                }} disabled={operationLoading}>Cancel</button>
-                <button type="button" className="btn btn-primary" onClick={handleCreateFile} disabled={operationLoading}>
-                  {operationLoading ? 'Creating...' : 'Create File'}
-                </button>
               </div>
             </div>
           </div>
@@ -721,20 +718,35 @@ const FilesTab = () => {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 {editingFile ? (
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={editingFile.title}
-                    onChange={(e) => setEditingFile({ ...editingFile, title: e.target.value })}
-                    maxLength={200}
-                  />
+                  <h5 className="modal-title">{editingFile.title}</h5>
                 ) : (
                   <h5 className="modal-title">{viewingFile.title}</h5>
                 )}
-                <button type="button" className="btn-close" onClick={() => {
+                <div className='d-flex gap-2 align-items-center'>
+                  <button type="button" className="btn btn-secondary" onClick={() => {
                   setViewingFile(null);
                   setEditingFile(null);
-                }}></button>
+                }}>Close</button>
+                  {editingFile ? (
+                  <>
+                  <button type="button" className="btn btn-primary" onClick={() => handleUpdateFile(editingFile._id, editingFile)} disabled={operationLoading}>
+                      <i className="ri-save-line"></i> {operationLoading ? 'Saving...' : 'Save'}
+                    </button>
+                    <button type="button" className="btn btn-danger" onClick={() => setEditingFile(null)} disabled={operationLoading}>
+                      <i className="ri-close-line"></i> Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                   <button type="button" className="btn btn-primary" onClick={() => setEditingFile({ ...viewingFile })} disabled={operationLoading}>
+                      <i className="ri-edit-line"></i> Edit
+                    </button>
+                    <button type="button" className="btn btn-danger" onClick={() => setShowDeleteModal(true)} disabled={operationLoading}>
+                      <i className="ri-delete-bin-line"></i> Delete
+                    </button>
+                  </>
+                )}
+                </div>
               </div>
               <div className="modal-body">
         {viewingFile && (
@@ -742,7 +754,18 @@ const FilesTab = () => {
                 {editingFile ? (
                   <>
                     {/* Folder Selection for Editing */}
-                    <div className="mb-3">
+                    <div className='d-flex gap-2'>
+                       <div className="mb-3 w-full">
+                      <label className="form-label">Title</label>
+                <input
+                    type="text"
+                    className="form-control"
+                    value={editingFile.title}
+                    onChange={(e) => setEditingFile({ ...editingFile, title: e.target.value })}
+                    maxLength={200}
+                  />
+                    </div>
+                    <div className="mb-3 w-full">
                       <label className="form-label">Folder (Optional)</label>
                       <select
                         className="form-select"
@@ -756,6 +779,7 @@ const FilesTab = () => {
                           </option>
                         ))}
                       </select>
+                    </div>
                     </div>
                     {/* Rich Text Toolbar for Editing */}
                     <div className="toolbar mb-2 p-2 border rounded">
@@ -817,7 +841,7 @@ const FilesTab = () => {
                     <textarea
                       id="edit-content"
                       className="form-control"
-                      rows="15"
+                      rows="19"
                       value={editingFile.content}
                       onChange={(e) => setEditingFile({ ...editingFile, content: e.target.value })}
                       maxLength={50000}
@@ -834,27 +858,6 @@ const FilesTab = () => {
                 )}
           </div>
         )}
-              </div>
-              <div className="modal-footer">
-                {editingFile ? (
-                  <>
-                    <button type="button" className="btn btn-secondary" onClick={() => setEditingFile(null)} disabled={operationLoading}>
-                      <i className="ri-close-line"></i> Cancel
-                    </button>
-                    <button type="button" className="btn btn-primary" onClick={() => handleUpdateFile(editingFile._id, editingFile)} disabled={operationLoading}>
-                      <i className="ri-save-line"></i> {operationLoading ? 'Saving...' : 'Save'}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button type="button" className="btn btn-danger" onClick={() => setShowDeleteModal(true)} disabled={operationLoading}>
-                      <i className="ri-delete-bin-line"></i> Delete
-                    </button>
-                    <button type="button" className="btn btn-primary" onClick={() => setEditingFile({ ...viewingFile })} disabled={operationLoading}>
-                      <i className="ri-edit-line"></i> Edit
-                    </button>
-                  </>
-                )}
               </div>
             </div>
           </div>
