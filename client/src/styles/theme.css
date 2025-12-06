@@ -221,6 +221,24 @@ small {
   color: var(--primary-dark);
 }
 
+/* Dark mode analytics card fix */
+:root[data-theme="dark"] .analytics-card {
+  background: linear-gradient(180deg, var(--panel), var(--bg));
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .analytics-card .display-6 {
+  color: var(--headline);
+}
+
+:root[data-theme="dark"] .analytics-card h6 {
+  color: var(--headline);
+}
+
+:root[data-theme="dark"] .analytics-card .text-muted {
+  color: var(--text-muted) !important;
+}
+
 .task-item-time {
   font-size: 0.8rem;
   color: var(--text-muted);
