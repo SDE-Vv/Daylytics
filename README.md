@@ -2,13 +2,35 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.4.3` (Beta)
+**Current Version:** `1.4.4` (Beta)
 
 ---
 
 ## 🚀 Features
 
-### Version 1.4.3 (Current — Beta)
+### Version 1.4.4 (Current — Beta)
+- **Release Date:** December 2025
+- **Performance Optimizations:**
+   - **⚡ Instant Tab Switching** - Files tab data persists when switching between tabs
+     - No reloading when navigating back to Files tab
+     - Component stays mounted with display:none instead of unmounting
+   - **💾 Smart Caching System** - Folder navigation uses intelligent cache
+     - OS-like file explorer experience with instant folder navigation
+     - Cache invalidation only on database operations (create, update, delete)
+     - Eliminates unnecessary API calls when browsing folders
+   - **🔄 Refresh Buttons** - Manual refresh controls added to all tabs
+     - Tasks tab refresh with loader feedback
+     - Analytics tab refresh with loader feedback
+     - Files tab refresh clears cache and reloads all data
+   - **📊 Unified Initial Load** - All data loads simultaneously on page load
+     - Tasks, Analytics, and Files fetch in parallel
+     - Single loader for entire dashboard instead of multiple loaders
+     - Faster perceived performance
+   - **🚫 Eliminated Flash of Empty State** - Fixed brief "No files and folders" flash
+     - Proper initial loading state prevents UI flicker
+     - Smooth data population without visual glitches
+
+### Version 1.4.3 (Beta)
 - **Release Date:** December 2025
 - **New Features:**
    - **⏰ Automatic Daily Archiving** - System automatically archives tasks at midnight (12:00 AM)
@@ -294,7 +316,38 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.4.3 (Current — Beta)
+### v1.4.4 (Current — Beta)
+**Release Date:** December 2025
+
+**Performance Optimizations:**
+- ✅ **Instant Tab Switching** - Files tab data persists when switching between tabs
+  - No reloading when navigating back to Files tab
+  - Component stays mounted with display:none instead of unmounting
+- ✅ **Smart Caching System** - Folder navigation uses intelligent cache
+  - OS-like file explorer experience with instant folder navigation
+  - Cache invalidation only on database operations (create, update, delete)
+  - Eliminates unnecessary API calls when browsing folders
+- ✅ **Refresh Buttons** - Manual refresh controls added to all tabs
+  - Tasks tab refresh with loader feedback
+  - Analytics tab refresh with loader feedback
+  - Files tab refresh clears cache and reloads all data
+- ✅ **Unified Initial Load** - All data loads simultaneously on page load
+  - Tasks, Analytics, and Files fetch in parallel
+  - Single loader for entire dashboard instead of multiple loaders
+  - Faster perceived performance
+- ✅ **Eliminated Flash of Empty State** - Fixed brief "No files and folders" flash
+  - Proper initial loading state prevents UI flicker
+  - Smooth data population without visual glitches
+
+**Technical Improvements:**
+- Implemented useRef caching for folders and files
+- Coordinated loading states between Dashboard and FilesTab
+- Added optional loader parameters to fetch functions
+- Cache invalidation strategy on all mutations
+
+---
+
+### v1.4.3 (Beta)
 **Release Date:** December 2025
 
 **New Features:**

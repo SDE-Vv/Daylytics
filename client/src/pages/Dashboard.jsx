@@ -50,16 +50,30 @@ const Dashboard = () => {
     return new Date(value).toLocaleString("en-US", options);
   };
 
-  const fetchTasks = async (d = date) => {
-    const { data } = await API.get("/api/tasks", { params: { date: d } });
-    setTasks(data);
-    return data;
+  const fetchTasks = async (d = date, showLoader = false) => {
+    if (showLoader) setLoadingData(true);
+    try {
+      const { data } = await API.get("/api/tasks", { params: { date: d } });
+      setTasks(data);
+      return data;
+    } catch (err) {
+      addToast("error", "Unable to load tasks");
+    } finally {
+      if (showLoader) setLoadingData(false);
+    }
   };
 
-  const fetchArchives = async () => {
-    const { data } = await API.get("/api/archive");
-    setArchives(data);
-    return data;
+  const fetchArchives = async (showLoader = false) => {
+    if (showLoader) setLoadingData(true);
+    try {
+      const { data } = await API.get("/api/archive");
+      setArchives(data);
+      return data;
+    } catch (err) {
+      addToast("error", "Unable to load archives");
+    } finally {
+      if (showLoader) setLoadingData(false);
+    }
   };
 
   useEffect(() => {
@@ -67,6 +81,7 @@ const Dashboard = () => {
     const load = async () => {
       setLoadingData(true);
       try {
+        // Load Tasks, Archives, and trigger Files data load all together
         await Promise.all([fetchTasks(date), fetchArchives()]);
       } catch (err) {
         addToast("error", "Unable to load dashboard data");
@@ -372,6 +387,14 @@ const Dashboard = () => {
                       <i class="ri-delete-bin-line"></i> All
                     </button>
                   )}
+                  <button
+                  type="button"
+                  className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                  onClick={() => fetchTasks(date, true)}
+                  title="Refresh tasks"
+                >
+                  <i className="ri-refresh-line"></i>
+                </button>
                 </form>
               </div>
             </div>
@@ -505,6 +528,14 @@ const Dashboard = () => {
                   Daily completion history (auto-archived at midnight)
                 </small>
               </div>
+              <button
+                type="button"
+                className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                onClick={() => fetchArchives(true)}
+                title="Refresh analytics"
+              >
+                <i className="ri-refresh-line"></i>
+              </button>
             </div>
 
             <div className="analytics-grid">
@@ -528,7 +559,7 @@ const Dashboard = () => {
         )}
 
         <div style={{ display: activeTab === "files" ? "block" : "none" }}>
-          <FilesTab />
+          <FilesTab dashboardLoading={loadingData} />
         </div>
       </div>
 
@@ -668,7 +699,7 @@ const Dashboard = () => {
           pointerEvents: "none",
         }}
       >
-        v1.4.3
+        v1.4.4
       </div>
 
       <div

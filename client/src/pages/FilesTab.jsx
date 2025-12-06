@@ -5,7 +5,7 @@ import { marked } from 'marked';
 import Modal from '../components/Modal';
 import Loader from '../components/Loader';
 
-const FilesTab = () => {
+const FilesTab = ({ dashboardLoading }) => {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
   const [allFolders, setAllFolders] = useState([]);
@@ -382,7 +382,8 @@ const FilesTab = () => {
     }, 0);
   };
 
-  if (loading) {
+  // Don't show FilesTab loader if Dashboard is already loading
+  if (loading && !dashboardLoading) {
     return <Loader message='Loading Your Files & Folders...'/>;
   }
 
@@ -396,6 +397,20 @@ const FilesTab = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">My Files</h2>
         <div className="d-flex gap-2">
+          <button 
+            className="btn btn-outline-secondary d-flex align-items-center gap-1"
+            onClick={() => {
+              // Clear cache and refetch
+              folderCache.current = {};
+              fileCache.current = {};
+              setLoading(true);
+              Promise.all([fetchAllFolders(), fetchFolders(), fetchFiles()])
+                .finally(() => setLoading(false));
+            }}
+            title="Refresh files and folders"
+          >
+            <i className="ri-refresh-line"></i>
+          </button>
           <button 
             className="btn btn-outline-primary"
             onClick={() => setShowCreateFolderModal(true)}
