@@ -177,8 +177,12 @@ const Dashboard = () => {
     }
 
     try {
-      const { data } = await API.put(`/api/tasks/${editingTask._id}`, { title: editTitle });
-      setTasks((prev) => prev.map((t) => (t._id === editingTask._id ? data : t)));
+      const { data } = await API.put(`/api/tasks/${editingTask._id}`, {
+        title: editTitle,
+      });
+      setTasks((prev) =>
+        prev.map((t) => (t._id === editingTask._id ? data : t))
+      );
       addToast("success", "Task updated");
       cancelEdit();
     } catch (err) {
@@ -246,7 +250,9 @@ const Dashboard = () => {
             )
           }
         />
-        {loadingData && activeTab !== "files" && <Loader message="Syncing your day..." />}
+        {loadingData && activeTab !== "files" && (
+          <Loader message="Syncing your day..." />
+        )}
         <div className="mobile-quick-add panel panel-shadow d-md-none">
           <div className="mb-3">
             <h5 className="mb-1">Add a task</h5>
@@ -269,7 +275,10 @@ const Dashboard = () => {
               Today
             </button>
           </div>
-          <form onSubmit={addTask} className="task-form d-flex flex-column gap-2">
+          <form
+            onSubmit={addTask}
+            className="task-form d-flex flex-column gap-2"
+          >
             <input
               className="form-control w-100"
               value={title}
@@ -336,7 +345,6 @@ const Dashboard = () => {
                 <small>Track what needs attention before midnight.</small>
               </div>
               <div className="d-flex gap-2 align-items-center">
-                
                 <form
                   onSubmit={addTask}
                   className="task-form d-none d-md-flex flex-wrap gap-2 align-items-center"
@@ -356,14 +364,14 @@ const Dashboard = () => {
                     {submittingTask ? "Adding..." : "Add"}
                   </button>
                   {tasks.length > 0 && (
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger d-flex  gap-1 align-items-center"
-                    onClick={() => setShowDeleteAllModal(true)}
-                  >
-                    <i class="ri-delete-bin-line"></i> All
-                  </button>
-                )}
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger d-flex  gap-1 align-items-center"
+                      onClick={() => setShowDeleteAllModal(true)}
+                    >
+                      <i class="ri-delete-bin-line"></i> All
+                    </button>
+                  )}
                 </form>
               </div>
             </div>
@@ -420,7 +428,10 @@ const Dashboard = () => {
                         role="button"
                       >
                         {updatingTasks.has(t._id) ? (
-                          <div className="spinner-border spinner-border-sm text-primary" role="status" />
+                          <div
+                            className="spinner-border spinner-border-sm text-primary"
+                            role="status"
+                          />
                         ) : (
                           <input
                             className="form-check-input"
@@ -435,7 +446,12 @@ const Dashboard = () => {
                             }}
                           />
                         )}
-                        <span className={cx("task-title-truncate", t.done && "text-decoration-line-through")}>
+                        <span
+                          className={cx(
+                            "task-title-truncate",
+                            t.done && "text-decoration-line-through"
+                          )}
+                        >
                           {t.title}
                         </span>
                       </div>
@@ -463,7 +479,10 @@ const Dashboard = () => {
                           }}
                         >
                           {deletingTasks.has(t._id) ? (
-                            <div className="spinner-border spinner-border-sm text-danger" role="status" />
+                            <div
+                              className="spinner-border spinner-border-sm text-danger"
+                              role="status"
+                            />
                           ) : (
                             <i className="ri-delete-bin-line"></i>
                           )}
@@ -482,7 +501,9 @@ const Dashboard = () => {
             <div className="panel-header d-flex justify-content-between align-items-center">
               <div>
                 <h5 className="mb-0">Analytics</h5>
-                <small>Daily completion history (auto-archived at midnight)</small>
+                <small>
+                  Daily completion history (auto-archived at midnight)
+                </small>
               </div>
             </div>
 
@@ -506,9 +527,9 @@ const Dashboard = () => {
           </section>
         )}
 
-        {activeTab === "files" && (
+        <div style={{ display: activeTab === "files" ? "block" : "none" }}>
           <FilesTab />
-        )}
+        </div>
       </div>
 
       <ProfileModal
@@ -567,7 +588,10 @@ const Dashboard = () => {
           </div>
         }
       >
-        <p className="mb-0">This will permanently delete all {tasks.length} task(s) for {date}. This action cannot be undone.</p>
+        <p className="mb-0">
+          This will permanently delete all {tasks.length} task(s) for {date}.
+          This action cannot be undone.
+        </p>
       </Modal>
 
       <Modal
@@ -597,17 +621,22 @@ const Dashboard = () => {
                   checked={viewingTask.done}
                   onChange={() => {
                     toggle(viewingTask._id);
-                    setViewingTask({...viewingTask, done: !viewingTask.done});
+                    setViewingTask({ ...viewingTask, done: !viewingTask.done });
                   }}
                 />
-                <span className={viewingTask.done ? "text-success" : "text-muted"}>
+                <span
+                  className={viewingTask.done ? "text-success" : "text-muted"}
+                >
                   {viewingTask.done ? "Completed" : "Pending"}
                 </span>
               </div>
             </div>
             <div className="mb-3">
               <label className="form-label text-muted small">Task</label>
-              <p className="mb-0" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              <p
+                className="mb-0"
+                style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+              >
                 {viewingTask.title}
               </p>
             </div>
@@ -620,44 +649,51 @@ const Dashboard = () => {
       </Modal>
 
       {/* Version Display */}
-      <div style={{
-        position: 'fixed',
-        bottom: '10px',
-        right: '20px',
-        fontSize: '11px',
-        opacity: 0.7,
-        padding: '6px 12px',
-        borderRadius: '20px',
-        backgroundColor: 'var(--bs-body-bg)',
-        border: '1px solid var(--bs-border-color)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        fontWeight: '500',
-        color: 'var(--bs-body-color)',
-        zIndex: 1000,
-        userSelect: 'none',
-        pointerEvents: 'none'
-      }}>
-        v1.4.3 
+      <div
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          right: "20px",
+          fontSize: "11px",
+          opacity: 0.7,
+          padding: "6px 12px",
+          borderRadius: "20px",
+          backgroundColor: "var(--bs-body-bg)",
+          border: "1px solid var(--bs-border-color)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          fontWeight: "500",
+          color: "var(--bs-body-color)",
+          zIndex: 1000,
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+      >
+        v1.4.3
       </div>
 
-       <div style={{
-        position: 'fixed',
-        bottom: '10px',
-        right: '80px',
-        fontSize: '11px',
-        opacity: 0.7,
-        padding: '6px 12px',
-        borderRadius: '20px',
-        backgroundColor: 'var(--bs-body-bg)',
-        border: '1px solid var(--bs-border-color)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        fontWeight: '500',
-        color: 'var(--bs-body-color)',
-        zIndex: 1000,
-        userSelect: 'none',
-        pointerEvents: 'auto',
-        cursor: 'pointer'
-      }} onClick={() => window.open('https://github.com/VanshSharmaSDE/Daylytics/', '_blank')}>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          right: "80px",
+          fontSize: "11px",
+          opacity: 0.7,
+          padding: "6px 12px",
+          borderRadius: "20px",
+          backgroundColor: "var(--bs-body-bg)",
+          border: "1px solid var(--bs-border-color)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          fontWeight: "500",
+          color: "var(--bs-body-color)",
+          zIndex: 1000,
+          userSelect: "none",
+          pointerEvents: "auto",
+          cursor: "pointer",
+        }}
+        onClick={() =>
+          window.open("https://github.com/VanshSharmaSDE/Daylytics/", "_blank")
+        }
+      >
         Github
       </div>
     </>

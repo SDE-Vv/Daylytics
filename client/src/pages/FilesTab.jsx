@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import { useToast } from '../components/ToastProvider';
 import { marked } from 'marked';
@@ -26,32 +26,46 @@ const FilesTab = () => {
   const [pinningFiles, setPinningFiles] = useState(() => new Set());
   const [pinningFolders, setPinningFolders] = useState(() => new Set());
   const { addToast } = useToast();
+  const hasLoadedInitially = useRef(false);
+  const folderCache = useRef({});
+  const fileCache = useRef({});
 
   // Formatting state for rich text editor
   const [formatMenu, setFormatMenu] = useState(false);
 
   useEffect(() => {
-    fetchAllFolders();
-    fetchFolders();
-    fetchFiles();
+    // Only fetch on initial mount
+    if (!hasLoadedInitially.current) {
+      hasLoadedInitially.current = true;
+      setLoading(true);
+      Promise.all([fetchAllFolders(), fetchFolders(), fetchFiles()])
+        .finally(() => setLoading(false));
+    } else {
+      // Use cached data when navigating - instant!
+      const folderKey = currentFolder || 'root';
+      if (folderCache.current[folderKey] && fileCache.current[folderKey]) {
+        setFolders(folderCache.current[folderKey]);
+        setFiles(fileCache.current[folderKey]);
+      } else {
+        // Fetch only if not cached
+        fetchFolders();
+        fetchFiles();
+      }
+    }
   }, [currentFolder]);
 
   const fetchAllFolders = async () => {
     try {
-      setLoading(true);
       // Fetch all folders without parent filter for dropdown
       const response = await api.get('/api/folders');
       setAllFolders(response.data);
     } catch (error) {
       addToast('error', 'Failed to load all folders');
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchFolders = async () => {
     try {
-      setLoading(true);
       const params = currentFolder ? { parentFolder: currentFolder } : {};
       const response = await api.get('/api/folders', { params });
       // Sort: pinned folders first, then by createdAt
@@ -62,16 +76,16 @@ const FilesTab = () => {
         return b.isPinned ? 1 : -1;
       });
       setFolders(sorted);
+      // Cache the result
+      const folderKey = currentFolder || 'root';
+      folderCache.current[folderKey] = sorted;
     } catch (error) {
       addToast('error', 'Failed to load folders');
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchFiles = async () => {
     try {
-      setLoading(true);
       const params = { folder: currentFolder || 'null' };
       const response = await api.get('/api/files', { params });
       // Sort: pinned files first, then by updatedAt
@@ -82,10 +96,11 @@ const FilesTab = () => {
         return b.isPinned ? 1 : -1;
       });
       setFiles(sorted);
+      // Cache the result
+      const folderKey = currentFolder || 'root';
+      fileCache.current[folderKey] = sorted;
     } catch (error) {
       addToast('error', 'Failed to load files');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,8 +128,11 @@ const FilesTab = () => {
       addToast('success', 'File created successfully');
       setShowCreateModal(false);
       setNewFile({ title: '', content: '', folder: null });
-      fetchFiles();
-      fetchAllFolders();
+      // Clear cache and refetch
+      const folderKey = currentFolder || 'root';
+      fileCache.current[folderKey] = null;
+      await fetchFiles();
+      await fetchAllFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to create file');
     } finally {
@@ -141,8 +159,10 @@ const FilesTab = () => {
       addToast('success', 'File updated successfully');
       setEditingFile(null);
       setViewingFile(updates);
-      fetchFiles();
-      fetchAllFolders();
+      // Clear cache and refetch
+      fileCache.current = {};
+      await fetchFiles();
+      await fetchAllFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to update file');
     } finally {
@@ -159,7 +179,10 @@ const FilesTab = () => {
       addToast('success', 'File deleted successfully');
       setViewingFile(null);
       setShowDeleteModal(false);
-      fetchFiles();
+      // Clear cache and refetch
+      const folderKey = currentFolder || 'root';
+      fileCache.current[folderKey] = null;
+      await fetchFiles();
     } catch (error) {
       addToast('error', 'Failed to delete file');
     } finally {
@@ -186,7 +209,10 @@ const FilesTab = () => {
       addToast('success', 'Folder created successfully');
       setShowCreateFolderModal(false);
       setNewFolderName('');
-      fetchFolders();
+      // Clear cache and refetch
+      const folderKey = currentFolder || 'root';
+      folderCache.current[folderKey] = null;
+      await fetchFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to create folder');
     } finally {
@@ -203,8 +229,11 @@ const FilesTab = () => {
       addToast('success', 'Folder deleted successfully');
       setShowDeleteFolderModal(false);
       setFolderToDelete(null);
-      fetchFolders();
-      fetchAllFolders();
+      // Clear cache and refetch
+      const folderKey = currentFolder || 'root';
+      folderCache.current[folderKey] = null;
+      await fetchFolders();
+      await fetchAllFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to delete folder');
     } finally {
