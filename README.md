@@ -2,7 +2,7 @@
 
 > A powerful daily task management app with built-in analytics to track your productivity.
 
-**Current Version:** `1.4.4` (Beta)
+**Current Version:** `1.4.5` (Beta)
 
 ---
 
@@ -316,7 +316,29 @@ This creates a test user:
 
 ## 📦 Version History
 
-### v1.4.4 (Current — Beta)
+### v1.4.5 (Current — Beta)
+**Release Date:** December 2025
+
+**Files System Improvements & Performance:**
+- ✅ **Fixed Nested Folder Deletion Bug** - Folder deletion now properly handles loading states
+  - Loading state clears properly on both success and error
+  - Modal closes even if deletion fails to prevent UI from getting stuck
+  - Comprehensive cache clearing after deletion
+- ✅ **Simplified File Creation** - Removed folder dropdown for intuitive workflow
+  - Automatically creates files in current folder location
+  - Shows current location indicator (Root or folder path)
+  - Eliminates confusion about where file will be created
+- ✅ **Removed File Moving Feature** - Files stay in creation location
+  - Prevents accidental file misplacement
+  - Cleaner, more focused editing modal
+  - Simplified user experience
+- ✅ **Optimized Loading Performance** - Files section loads significantly faster
+  - Enhanced caching strategy with cache-first approach
+  - Reduced unnecessary API calls
+  - Parallel fetch execution for folders and files
+  - Instant navigation using cached data
+
+### v1.4.4 (Beta)
 **Release Date:** December 2025
 
 **Performance Optimizations:**

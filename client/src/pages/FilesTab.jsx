@@ -8,7 +8,6 @@ import Loader from '../components/Loader';
 const FilesTab = ({ dashboardLoading }) => {
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
-  const [allFolders, setAllFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState(null);
   const [folderPath, setFolderPath] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ const FilesTab = ({ dashboardLoading }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDeleteFolderModal, setShowDeleteFolderModal] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState(null);
-  const [newFile, setNewFile] = useState({ title: '', content: '', folder: null });
+  const [newFile, setNewFile] = useState({ title: '', content: '' });
   const [newFolderName, setNewFolderName] = useState('');
   const [pinningFiles, setPinningFiles] = useState(() => new Set());
   const [pinningFolders, setPinningFolders] = useState(() => new Set());
@@ -34,37 +33,33 @@ const FilesTab = ({ dashboardLoading }) => {
   const [formatMenu, setFormatMenu] = useState(false);
 
   useEffect(() => {
+    const folderKey = currentFolder || 'root';
+    
     // Only fetch on initial mount
     if (!hasLoadedInitially.current) {
       hasLoadedInitially.current = true;
       setLoading(true);
-      Promise.all([fetchAllFolders(), fetchFolders(), fetchFiles()])
+      Promise.all([fetchFolders(), fetchFiles()])
         .finally(() => setLoading(false));
+    } else if (folderCache.current[folderKey] && fileCache.current[folderKey]) {
+      // Use cached data immediately - instant navigation!
+      setFolders(folderCache.current[folderKey]);
+      setFiles(fileCache.current[folderKey]);
     } else {
-      // Use cached data when navigating - instant!
-      const folderKey = currentFolder || 'root';
-      if (folderCache.current[folderKey] && fileCache.current[folderKey]) {
-        setFolders(folderCache.current[folderKey]);
-        setFiles(fileCache.current[folderKey]);
-      } else {
-        // Fetch only if not cached
-        fetchFolders();
-        fetchFiles();
-      }
+      // Fetch in parallel if not cached
+      Promise.all([fetchFolders(), fetchFiles()]);
     }
   }, [currentFolder]);
 
-  const fetchAllFolders = async () => {
-    try {
-      // Fetch all folders without parent filter for dropdown
-      const response = await api.get('/api/folders');
-      setAllFolders(response.data);
-    } catch (error) {
-      addToast('error', 'Failed to load all folders');
-    }
-  };
-
   const fetchFolders = async () => {
+    const folderKey = currentFolder || 'root';
+    
+    // Check cache first
+    if (folderCache.current[folderKey]) {
+      setFolders(folderCache.current[folderKey]);
+      return;
+    }
+    
     try {
       const params = currentFolder ? { parentFolder: currentFolder } : {};
       const response = await api.get('/api/folders', { params });
@@ -77,7 +72,6 @@ const FilesTab = ({ dashboardLoading }) => {
       });
       setFolders(sorted);
       // Cache the result
-      const folderKey = currentFolder || 'root';
       folderCache.current[folderKey] = sorted;
     } catch (error) {
       addToast('error', 'Failed to load folders');
@@ -85,6 +79,14 @@ const FilesTab = ({ dashboardLoading }) => {
   };
 
   const fetchFiles = async () => {
+    const folderKey = currentFolder || 'root';
+    
+    // Check cache first
+    if (fileCache.current[folderKey]) {
+      setFiles(fileCache.current[folderKey]);
+      return;
+    }
+    
     try {
       const params = { folder: currentFolder || 'null' };
       const response = await api.get('/api/files', { params });
@@ -97,7 +99,6 @@ const FilesTab = ({ dashboardLoading }) => {
       });
       setFiles(sorted);
       // Cache the result
-      const folderKey = currentFolder || 'root';
       fileCache.current[folderKey] = sorted;
     } catch (error) {
       addToast('error', 'Failed to load files');
@@ -123,16 +124,16 @@ const FilesTab = ({ dashboardLoading }) => {
     try {
       setOperationLoading(true);
       setOperationMessage('Creating your file...');
-      const fileData = { ...newFile, folder: newFile.folder || null };
+      // Automatically use current folder location
+      const fileData = { ...newFile, folder: currentFolder || null };
       await api.post('/api/files', fileData);
       addToast('success', 'File created successfully');
       setShowCreateModal(false);
-      setNewFile({ title: '', content: '', folder: null });
+      setNewFile({ title: '', content: '' });
       // Clear cache and refetch
       const folderKey = currentFolder || 'root';
       fileCache.current[folderKey] = null;
       await fetchFiles();
-      await fetchAllFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to create file');
     } finally {
@@ -162,7 +163,6 @@ const FilesTab = ({ dashboardLoading }) => {
       // Clear cache and refetch
       fileCache.current = {};
       await fetchFiles();
-      await fetchAllFolders();
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to update file');
     } finally {
@@ -229,13 +229,15 @@ const FilesTab = ({ dashboardLoading }) => {
       addToast('success', 'Folder deleted successfully');
       setShowDeleteFolderModal(false);
       setFolderToDelete(null);
-      // Clear cache and refetch
-      const folderKey = currentFolder || 'root';
-      folderCache.current[folderKey] = null;
-      await fetchFolders();
-      await fetchAllFolders();
+      // Clear all cache to refresh properly
+      folderCache.current = {};
+      fileCache.current = {};
+      await Promise.all([fetchFolders(), fetchFiles()]);
     } catch (error) {
       addToast('error', error.response?.data?.message || 'Failed to delete folder');
+      // Close modal even on error so user isn't stuck
+      setShowDeleteFolderModal(false);
+      setFolderToDelete(null);
     } finally {
       setOperationLoading(false);
       setOperationMessage('');
@@ -404,7 +406,7 @@ const FilesTab = ({ dashboardLoading }) => {
               folderCache.current = {};
               fileCache.current = {};
               setLoading(true);
-              Promise.all([fetchAllFolders(), fetchFolders(), fetchFiles()])
+              Promise.all([fetchFolders(), fetchFiles()])
                 .finally(() => setLoading(false));
             }}
             title="Refresh files and folders"
@@ -621,7 +623,7 @@ const FilesTab = ({ dashboardLoading }) => {
           style={{ backgroundColor: 'rgba(31, 35, 40, 0.18)', backdropFilter: 'blur(1px)' }}
           onClick={() => {
             setShowCreateModal(false);
-            setNewFile({ title: '', content: '', folder: null });
+            setNewFile({ title: '', content: '' });
           }}
         >
           <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
@@ -631,7 +633,7 @@ const FilesTab = ({ dashboardLoading }) => {
                 <div className='d-flex gap-2'>
                   <button type="button" className="btn btn-secondary" onClick={() => {
                   setShowCreateModal(false);
-                  setNewFile({ title: '', content: '', folder: null });
+                  setNewFile({ title: '', content: '' });
                 }} disabled={operationLoading}>Cancel</button>
                 <button type="button" className="btn btn-primary" onClick={handleCreateFile} disabled={operationLoading}>
                   {operationLoading ? 'Creating...' : <>Create <i className="ri-add-fill"></i></>}
@@ -640,8 +642,7 @@ const FilesTab = ({ dashboardLoading }) => {
               </div>
               <div className="modal-body">
         <div>
-                <div className='d-flex justify-content-center gap-2'>
-                  <div className="mb-3 w-full">
+                <div className="mb-3">
                   <label className="form-label">Title</label>
                   <input
                     type="text"
@@ -651,23 +652,19 @@ const FilesTab = ({ dashboardLoading }) => {
                     onChange={(e) => setNewFile({ ...newFile, title: e.target.value })}
                     maxLength={200}
                   />
-                  <small className="text-muted">{newFile.title.length}/200</small>
-                </div>
-                  <div className="mb-3 w-full">
-                  <label className="form-label">Folder (Optional)</label>
-                  <select
-                    className="form-select"
-                    value={newFile.folder || ''}
-                    onChange={(e) => setNewFile({ ...newFile, folder: e.target.value || null })}
-                  >
-                    <option value="">Root (No Folder)</option>
-                    {allFolders.map(folder => (
-                      <option key={folder._id} value={folder._id}>
-                        {folder.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <small className="text-muted d-block">{newFile.title.length}/200</small>
+                  {folderPath.length > 0 && (
+                    <small className="text-info d-block mt-1">
+                      <i className="ri-folder-line me-1"></i>
+                      Creating in: {folderPath.map(f => f.name).join(' / ')}
+                    </small>
+                  )}
+                  {folderPath.length === 0 && (
+                    <small className="text-muted d-block mt-1">
+                      <i className="ri-home-line me-1"></i>
+                      Creating in: Root
+                    </small>
+                  )}
                 </div>
                 
                 <div className="mb-3">
@@ -797,33 +794,17 @@ const FilesTab = ({ dashboardLoading }) => {
           <div>
                 {editingFile ? (
                   <>
-                    {/* Folder Selection for Editing */}
-                    <div className='d-flex gap-2'>
-                       <div className="mb-3 w-full">
+                    {/* Title for Editing */}
+                    <div className="mb-3">
                       <label className="form-label">Title</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    value={editingFile.title}
-                    onChange={(e) => setEditingFile({ ...editingFile, title: e.target.value })}
-                    maxLength={200}
-                  />
-                    </div>
-                    <div className="mb-3 w-full">
-                      <label className="form-label">Folder (Optional)</label>
-                      <select
-                        className="form-select"
-                        value={editingFile.folder || ''}
-                        onChange={(e) => setEditingFile({ ...editingFile, folder: e.target.value || null })}
-                      >
-                        <option value="">Root (No Folder)</option>
-                        {allFolders.map(folder => (
-                          <option key={folder._id} value={folder._id}>
-                            {folder.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={editingFile.title}
+                        onChange={(e) => setEditingFile({ ...editingFile, title: e.target.value })}
+                        maxLength={200}
+                      />
+                      <small className="text-muted">{editingFile.title.length}/200</small>
                     </div>
                     {/* Rich Text Toolbar for Editing */}
                     <div className="toolbar mb-2 p-2 border rounded">
