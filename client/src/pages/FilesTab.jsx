@@ -38,16 +38,20 @@ const FilesTab = () => {
 
   const fetchAllFolders = async () => {
     try {
+      setLoading(true);
       // Fetch all folders without parent filter for dropdown
       const response = await api.get('/api/folders');
       setAllFolders(response.data);
     } catch (error) {
       addToast('error', 'Failed to load all folders');
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchFolders = async () => {
     try {
+      setLoading(true);
       const params = currentFolder ? { parentFolder: currentFolder } : {};
       const response = await api.get('/api/folders', { params });
       // Sort: pinned folders first, then by createdAt
@@ -60,6 +64,8 @@ const FilesTab = () => {
       setFolders(sorted);
     } catch (error) {
       addToast('error', 'Failed to load folders');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -348,7 +354,7 @@ const FilesTab = () => {
   };
 
   if (loading) {
-    return <Loader message='Loading Your Files...'/>;
+    return <Loader message='Loading Your Files & Folders...'/>;
   }
 
   if (operationLoading) {
